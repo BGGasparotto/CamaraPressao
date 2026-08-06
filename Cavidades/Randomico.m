@@ -1,6 +1,9 @@
 close all
 clear all
 clc
+%% Controle da aleatoriedade
+rng('shuffle')  % gera uma nova amostra aleatória
+estado_rng = rng; % salva o estado usado
 %% Criação das coordenadas randômicas
 N = 600;
 L = 80 ; %largura
@@ -10,6 +13,7 @@ a = rand(N,3);
 b(:,1) = L * a(:,1);
 b(:,2) = P * a(:,2);
 b(:,3) = A * a(:,3);
+numero_inicial = size(b,1);
 %% Criação dos diâmetros randômicos
 d = rand(N,1);
 c = 5 + 5 .* d;
@@ -33,6 +37,7 @@ f2(:,3) = f(:,3)-2*f(:,4);
 f2(:,4) = f(:,4);
 f2(f2(:,1)<6 |f2(:,1)>74 | f2(:,2)<6 ...
     | f2(:,2)>94 | f2(:,3)<6 | f2(:,3)> 124, :) = [];
+numero_apos_parede = size(f2,1);
 %% Condição de furo
 g(:,1)=f2(:,1)+2*f2(:,4);
 g(:,2)=f2(:,2)+2*f2(:,4);
@@ -46,6 +51,7 @@ g2(:,3) = g(:,3)-2*g(:,4);
 g2(:,4) = g(:,4);
 % g2(g2(:,1)>35.3 & g2(:,1)<44.7 & g2(:,3)<92,:)=[];
 % g2(g2(:,2)>45.3 & g2(:,2)<54.7 & g2(:,3)<92,:)=[];
+numero_apos_furo = size(g2,1);
 %% Coordenadas restantes
 h(:,1) = g2(:,1) + g2(:,4);
 h(:,2) = g2(:,2) + g2(:,4);
@@ -102,7 +108,6 @@ for i = 1:NS3-1
         end
     end
 end
-
 %% Cálculo do volume das esferas
 volume = (4/3)*pi*(h_final3(:,4).^3);
 % adiciona o volume como 5ª coluna
@@ -114,6 +119,71 @@ h_final4(:,1) = h_final3(:,1);
 h_final4(:,2) = h_final3(:,2);
 h_final4(:,3) = h_final3(:,3);
 h_final4(:,4) = 2*h_final3(:,4);
-% writematrix(h_final4,'h_final4.csv');
+writematrix(h_final4,'h_final1.csv');
+%% ===============================
+% Estatísticas da amostra
+% ===============================
+diametros = 2*h_final3(:,4);
+diametro_medio = mean(diametros);
+desvio_padrao = std(diametros);
+numero_cavidades = size(h_final3,1);
+volume_cavidades = sum(h_final3(:,5));
+%% Volume de sobreposição
+volume_sobreposto = 0;
+bolas_sobrepostas = unique([pares_sobreposicao(:,1); 
+                            pares_sobreposicao(:,2)]);
+numero_bolas_sobrepostas = length(bolas_sobrepostas);
+% cálculo aproximado do volume sobreposto
+for i = 1:size(pares_sobreposicao,1)
+    r1 = h_final3(pares_sobreposicao(i,1),4);
+    r2 = h_final3(pares_sobreposicao(i,2),4);
+    d = pares_sobreposicao(i,3);
+    % fórmula da interseção de duas esferas
+    if d < abs(r1-r2)
+        v = (4/3)*pi*min(r1,r2)^3;
+    else
+        h1 = (r1+r2-d)*(r1-r2+d)/(2*d);
+        h2 = (r1+r2-d)*(r2-r1+d)/(2*d);
+        v = pi*h1^2*(r1-h1/3) + ...
+            pi*h2^2*(r2-h2/3);
+    end
+    volume_sobreposto = volume_sobreposto + v;
+end
+%% ===============================
+% Criar arquivo TXT
+% ===============================
+arquivo_txt = fopen('Dados_Amostra.txt','w');
+fprintf(arquivo_txt,'Dados da amostra aleatoria\n');
+fprintf(arquivo_txt,'==========================\n\n');
+fprintf(arquivo_txt,'Numero de cavidades: %d\n',numero_cavidades);
+fprintf(arquivo_txt,'Numero inicial de coordenadas randomicas: %d\n',numero_inicial);
+fprintf(arquivo_txt,'Numero apos condicao de parede: %d\n',numero_apos_parede);
+fprintf(arquivo_txt,'Numero apos condicao de furo: %d\n',numero_apos_furo);
+fprintf(arquivo_txt,'Numero apos coincidencia: %d\n',NS);
+fprintf(arquivo_txt,'Diametro medio: %.6f mm\n',diametro_medio);
+fprintf(arquivo_txt,'Desvio padrao dos diametros: %.6f mm\n',desvio_padrao);
+fprintf(arquivo_txt,'Volume total das cavidades: %.6f mm3\n',volume_cavidades);
+fprintf(arquivo_txt,'Volume total de sobreposicao: %.6f mm3\n',volume_sobreposto);
+fprintf(arquivo_txt,'Numero de bolinhas sobrepostas: %d\n',numero_bolas_sobrepostas);
+fclose(arquivo_txt);
+%% ===============================
+% Salvar arquivo MAT
+% ===============================
+save('Amostra_Aleatoria.mat',...
+    'h_final3',...
+    'h_final4',...
+    'pares_sobreposicao',...
+    'diametros',...
+    'diametro_medio',...
+    'desvio_padrao',...
+    'volume_cavidades',...
+    'volume_sobreposto',...
+    'numero_cavidades',...
+    'numero_bolas_sobrepostas',...
+    'numero_inicial',...
+    'numero_apos_parede',...
+    'numero_apos_furo',...
+    'estado_rng',...
+    'N','L','P','A')
 
 scatter3(h_final4(:,1),h_final4(:,2),h_final4(:,3))
