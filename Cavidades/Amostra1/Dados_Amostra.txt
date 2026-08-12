@@ -1,13 +1,15 @@
 Dados da amostra aleatoria
 ==========================
 
-Numero de cavidades: 302
-Numero inicial de coordenadas randomicas: 600
-Numero apos condicao de parede: 302
-Numero apos condicao de furo: 302
-Numero apos coincidencia: 302
-Diametro medio: 7.436844 mm
-Desvio padrao dos diametros: 1.431471 mm
-Volume total das cavidades: 72257.949611 mm3
-Volume total de sobreposicao: 5316.958493 mm3
-Numero de bolinhas sobrepostas: 187
+Numero de cavidades: 665
+Numero inicial de coordenadas randomicas: 1000
+Numero apos condicao de parede: 665
+Numero apos condicao de furo: 665
+Numero apos coincidencia: 665
+Diametro medio: 7.358650 mm
+Desvio padrao dos diametros: 1.424296 mm
+Volume total das cavidades: 154472.956795 mm3
+Volume total de sobreposicao: 25341.462607 mm3
+Volume cubo: 819000.000000 mm3
+Porosidade: 15.766971 porcento
+Numero de bolinhas sobrepostas: 568

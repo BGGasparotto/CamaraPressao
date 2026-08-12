@@ -5,10 +5,12 @@ clc
 rng('shuffle')  % gera uma nova amostra aleatória
 estado_rng = rng; % salva o estado usado
 %% Criação das coordenadas randômicas
-N = 600;
-L = 80 ; %largura
-P = 100; %profundidade
-A = 130; %altura
+N = 1300;
+L = 70 ; %largura
+P = 70; %profundidade
+A = 90; %altura
+Volume_cubo = L*P*A;
+T = 2; %parede
 a = rand(N,3);
 b(:,1) = L * a(:,1);
 b(:,2) = P * a(:,2);
@@ -29,14 +31,14 @@ f(:,1) = b(:,1)+e(:,4);
 f(:,2) = b(:,2)+e(:,4);
 f(:,3) = b(:,3)+e(:,4);
 f(:,4) = e(:,4);
-f(f(:,1)<6 |f(:,1)>74 | f(:,2)<6 ...
-    | f(:,2)>94 | f(:,3)<6 | f(:,3)> 124, :) = [];
+f(f(:,1)<T |f(:,1)>L-T | f(:,2)<T ...
+    | f(:,2)>P-T | f(:,3)<T | f(:,3)> A-T, :) = [];
 f2(:,1) = f(:,1)-2*f(:,4);
 f2(:,2) = f(:,2)-2*f(:,4);
 f2(:,3) = f(:,3)-2*f(:,4);
 f2(:,4) = f(:,4);
-f2(f2(:,1)<6 |f2(:,1)>74 | f2(:,2)<6 ...
-    | f2(:,2)>94 | f2(:,3)<6 | f2(:,3)> 124, :) = [];
+f2(f2(:,1)<T |f2(:,1)>L-T | f2(:,2)<T ...
+    | f2(:,2)>P-T | f2(:,3)<T | f2(:,3)> A-T, :) = [];
 numero_apos_parede = size(f2,1);
 %% Condição de furo
 g(:,1)=f2(:,1)+2*f2(:,4);
@@ -149,6 +151,9 @@ for i = 1:size(pares_sobreposicao,1)
     end
     volume_sobreposto = volume_sobreposto + v;
 end
+Volume_Poroso = Volume_cubo - volume_cavidades + volume_sobreposto;
+Volume_Bolas = Volume_cubo - Volume_Poroso;
+Porosidade = (Volume_Bolas/Volume_cubo)*100;
 %% ===============================
 % Criar arquivo TXT
 % ===============================
@@ -164,6 +169,8 @@ fprintf(arquivo_txt,'Diametro medio: %.6f mm\n',diametro_medio);
 fprintf(arquivo_txt,'Desvio padrao dos diametros: %.6f mm\n',desvio_padrao);
 fprintf(arquivo_txt,'Volume total das cavidades: %.6f mm3\n',volume_cavidades);
 fprintf(arquivo_txt,'Volume total de sobreposicao: %.6f mm3\n',volume_sobreposto);
+fprintf(arquivo_txt,'Volume cubo: %.6f mm3\n',Volume_cubo);
+fprintf(arquivo_txt,'Porosidade: %.6f porcento\n',Porosidade);
 fprintf(arquivo_txt,'Numero de bolinhas sobrepostas: %d\n',numero_bolas_sobrepostas);
 fclose(arquivo_txt);
 %% ===============================
